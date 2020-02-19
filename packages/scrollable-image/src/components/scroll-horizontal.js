@@ -35,7 +35,7 @@ class ScrollHorizontal extends React.PureComponent {
     super(props)
     this.scrollLeft = 0
     this.childrenHeight = 0
-    this.touchStartX = 0
+    this.touchStartY = 0
     this.wrapper = React.createRef()
     this.children = React.createRef()
     this.handleScroll = this._handleScroll.bind(this)
@@ -79,14 +79,14 @@ class ScrollHorizontal extends React.PureComponent {
   }
 
   _handleTouchStart(event) {
-    this.touchStartX = event.touches[0].screenX
+    this.touchStartY = event.touches[0].screenY
   }
 
   _handleTouchMoveEnd(event) {
-    const changedTouchPosition = event.changedTouches[0].screenX
-    const deltaX = this.touchStartX - changedTouchPosition
-    this.scroll(deltaX)
-    this.touchStartX = changedTouchPosition
+    const changedTouchPosition = event.changedTouches[0].screenY
+    const deltaY = this.touchStartY - changedTouchPosition
+    this.scroll(deltaY)
+    this.touchStartY = changedTouchPosition
   }
 
   render() {

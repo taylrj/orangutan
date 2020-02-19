@@ -13,7 +13,7 @@ const config = {
   devServer: {
     hot: true,
     watchContentBase: false,
-    host: '0.0.0.0',
+    host: '192.168.2.80',
     port: 8080,
   },
   devtool: 'eval-source-map',
