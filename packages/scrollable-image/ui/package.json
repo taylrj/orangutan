@@ -1,0 +1,23 @@
+{
+  "name": "scrollableImage-ui",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "make build",
+    "dev": "make dev"
+  },
+  "dependencies": {
+    "@material-ui/core": "^4.9.7",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.47",
+    "express": "^4.17.1",
+    "path": "^0.12.7",
+    "prop-types": "^15.7.2",
+    "react": "^16.3.0"
+  },
+  "devDependencies": {
+    "html-webpack-plugin": "^4.0.1",
+    "react-dom": "^16.3.0"
+  }
+}
