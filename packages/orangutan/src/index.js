@@ -1,5 +1,5 @@
 import dualChannel from '@twreporter/dual-channel'
-
+import scrollableImage from '@twreporter/scrollable-image'
 // `webpack-assets.json` is created by `make build`
 import webpackAssets from '../dist/webpack-assets.json'
 
@@ -29,5 +29,12 @@ export default {
   dualChannel,
   buildDualChannelEmbeddedCode: data => {
     return dualChannel.buildEmbeddedCode(data, webpackAssets['dual-channel'])
+  },
+  scrollableImage,
+  buildScrollableImageEmbeddedCode: data => {
+    return scrollableImage.buildEmbeddedCode(
+      data,
+      webpackAssets['scrollable-image']
+    )
   },
 }
