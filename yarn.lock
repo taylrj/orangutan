@@ -2378,15 +2378,15 @@
   dependencies:
     lodash.get "4"
 
-"@twreporter/scrollable-image@1.1.0-rc.2":
-  version "1.1.0-rc.2"
-  resolved "https://registry.yarnpkg.com/@twreporter/scrollable-image/-/scrollable-image-1.1.0-rc.2.tgz#32362ce7c9c1968ef6c33a6e7b94915408dc8f4a"
-  integrity sha512-4BAwBN0w5iphykirRJya5Ihd+mBR5MQ/plPBx38opv5RmYFeKcvro/v7D7q+llr34GH6csdvKBAAF8h45hfwxA==
+"@twreporter/scrollable-image@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@twreporter/scrollable-image/-/scrollable-image-1.0.0.tgz#afd89f02483e45990fe8f6c7785ae027afbba85c"
+  integrity sha512-p769WDqkWucjKCa7Fr0HnULpQApTsAY9cRizMJqrwWAkZiaXvsxQcpgXhPZ3rsJnE9SLj+91zKuz1Mt01YoG3g==
   dependencies:
     "@babel/polyfill" "^7.8.7"
     prop-types "^15.0.0"
-    react "^16.8.0"
-    react-dom "^16.8.0"
+    react "^16.3.0"
+    react-dom "^16.3.0"
     react-lazyload "^2.6.5"
     react-waypoint "^9.0.2"
     serialize-javascript "^3.0.0"
@@ -9536,7 +9536,7 @@ raw-body@2.4.0:
     iconv-lite "0.4.24"
     unpipe "1.0.0"
 
-react-dom@^16.8.0:
+react-dom@^16.3.0, react-dom@^16.8.0:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.13.1.tgz#c1bd37331a0486c078ee54c4740720993b2e0e7f"
   integrity sha512-81PIMmVLnCNLO/fFOQxdQkvEq/+Hfpv24XNJfpyZhTRfO0QcmQIF/PgCa1zCOj2w1hrn12MFLyaJ/G0+Mxtfag==
@@ -9611,7 +9611,7 @@ react-waypoint@^9.0.2:
     prop-types "^15.0.0"
     react-is "^16.6.3"
 
-react@^16.8.0:
+react@^16.3.0, react@^16.8.0:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react/-/react-16.13.1.tgz#2e818822f1a9743122c063d6410d85c1e3afe48e"
   integrity sha512-YMZQQq32xHLX0bz5Mnibv1/LHb3Sqzngu7xstSM+vrkE5Kzr9xE0yMByK5kMoTK30YVJE61WfbxIFFvfeDKT1w==

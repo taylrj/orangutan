@@ -1,9 +1,9 @@
 import PopoverHint from './simple-popover'
 import PropTypes from 'prop-types'
 import React, { useState } from 'react'
-import ScrollableImage from '../../../src/index'
+import ScrollableImage from '@twreporter/scrollable-image/lib/build-code/index'
 import SelectableCode from './selectable-code'
-import webpackAssets from '../../../dist/webpack-assets.json'
+import webpackAssets from '@twreporter/scrollable-image/dist/webpack-assets.json'
 // @material-ui
 import Alert from '@material-ui/lab/Alert'
 import AlertTitle from '@material-ui/lab/AlertTitle'
