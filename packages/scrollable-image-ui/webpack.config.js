@@ -9,7 +9,7 @@ const config = {
   mode: isDevelopment ? 'development' : 'production',
   entry: './src/client.js',
   output: {
-    path: path.resolve(__dirname, 'public/'),
+    path: path.resolve(__dirname, 'dist/'),
     filename: '[name].[hash].bundle.js',
   },
   optimization: {
