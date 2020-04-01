@@ -11,6 +11,12 @@ import webpackAssets from '../dist/webpack-assets.json'
  */
 
 /**
+ *  @typedef {Object} ScrollableImage
+ *  @property {Object} Component - React Component to render Scrollable Image style web page
+ *  @property {Function} buildEmbeddedCode - Build Scrollable Image embedded code
+ */
+
+/**
  *  @function buildCode
  *  @param {Object} data
  *  @return {string} embedded code script
@@ -20,6 +26,8 @@ import webpackAssets from '../dist/webpack-assets.json'
  *  @typedef {Object} Orangutan
  *  @property {DualChannel} dualChannel
  *  @property {buildCode} buildDualChannelEmbeddedCode
+ *  @property {ScrollableImage} scrollableImage
+ *  @property {buildCode} buildScrollableImageEmbeddedCode
  */
 
 /**
