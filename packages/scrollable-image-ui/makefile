@@ -1,4 +1,4 @@
-ROOT_DIR ?= $(abspath ../../..)
+ROOT_DIR ?= $(abspath ../..)
 include $(ROOT_DIR)/dev/base.makefile
 
 build: clean build-dist
