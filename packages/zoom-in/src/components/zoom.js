@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types'
 import React, {
   Children,
   cloneElement,
@@ -7,14 +6,10 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import merge from 'lodash/merge'
+import PropTypes from 'prop-types'
+import animations from '../animations'
 import styled, { ThemeContext } from 'styled-components'
 import useEventListener from '../hooks/use-event-listener'
-import { isSvg } from '../utils'
-
-const _ = {
-  merge,
-}
 
 const Container = styled.div`
   position: relative;
@@ -70,28 +65,15 @@ const Caption = styled.figcaption`
   font-size: ${props => props.fontSize}px;
   line-height: ${props => props.lineHeight}px;
   letter-spacing: ${props => props.letterSpacing}px;
-  transition: opacity ${props => props.duration}ms;
 `
 
-const getZoomOptions = options =>
-  _.merge(
-    {
-      scrollableEl: document,
-      transitionDuration: 200,
-      transitionFunction: 'cubic-bezier(0.2, 0, 0.2, 1)',
-      captionDelay: 200,
-      scrollOffset: 30,
-    },
-    options
-  )
-
-const Zoom = ({ children, caption, options }) => {
-  const zoomOptions = getZoomOptions(options)
+const Zoom = props => {
   const themeContext = useContext(ThemeContext)
-
+  const { zoomOptions } = themeContext
+  const animate = animations[themeContext.caption.side] || animations.default
   const [isZoomed, setZoom] = useState(false)
   const overlayRef = useRef(null)
-  const originalChildrenRef = useRef(null)
+  const originalRef = useRef(null)
   const zoomedRef = useRef(null)
   const containerRef = useRef(null)
   const captionRef = useRef(null)
@@ -101,80 +83,12 @@ const Zoom = ({ children, caption, options }) => {
     isAnimating = bool
   }
 
-  const getCaptionHeight = () => {
-    const {
-      captionFontSize,
-      captionLetterSpacing,
-      captionWidth,
-      captionLineHeight,
-    } = themeContext
-    return (
-      Math.ceil(
-        (caption.length * (captionFontSize + captionLetterSpacing)) /
-          captionWidth
-      ) * captionLineHeight
-    )
-  }
-
-  const animate = () => {
-    if (!originalChildrenRef.current || !zoomedRef.current) return
-    const {
-      frame,
-      marginLeft,
-      marginRight,
-      captionWidth,
-      captionMarginBottom,
-      marginTop,
-      marginBottom,
-    } = themeContext
-    const { transitionDuration, transitionFunction, captionDelay } = zoomOptions
-
-    // TODO: separate different animate function by caption position
-
-    const zoomTarget = originalChildrenRef.current
-    const viewportWidth = frame.width - (marginLeft + marginRight)
-    const viewportHeight =
-      frame.height -
-      (getCaptionHeight() + captionMarginBottom) -
-      (marginTop + marginBottom)
-
-    const naturalWidth = isSvg(zoomTarget)
-      ? viewportWidth
-      : zoomTarget.naturalWidth || viewportWidth
-    const naturalHeight = isSvg(zoomTarget)
-      ? viewportHeight
-      : zoomTarget.naturalHeight || viewportHeight
-    const { top, left, width, height } = zoomTarget.getBoundingClientRect()
-
-    const scaleX = Math.min(naturalWidth, viewportWidth) / width
-    const scaleY = Math.min(naturalHeight, viewportHeight) / height
-    const scale = Math.min(scaleX, scaleY)
-    const translateX =
-      (-left + (viewportWidth - width) / 2 + marginLeft + frame.left) / scale
-    const translateY =
-      (-top + (viewportHeight - height) / 2 + marginTop + frame.top) / scale
-
-    const transform = `scale(${scale}) translate3d(${translateX}px, ${translateY}px, 0)`
-    const transition = `transform ${transitionDuration}ms ${transitionFunction}`
-    zoomedRef.current.style.transition = transition
-    zoomedRef.current.style.transform = transform
-
-    captionRef.current.setAttribute(
-      'style',
-      `position: absolute;
-      top: 0;
-      left: 0;
-      opacity: 0;
-      visibility: visible;
-      width: ${captionWidth}px;
-      transform: translate(
-        ${translateX * scale + (width - scale * width) / 2}px, 
-        ${translateY * scale + (height + scale * height) / 2 + marginBottom}px
-      );
-      margin-bottom: ${captionMarginBottom}px;
-      transition: opacity ${captionDelay}ms;
-    `
-    )
+  const getCaptionHeight = captionLength => {
+    const { fontSize, letterSpacing, width, lineHeight } = themeContext.caption
+    const height =
+      Math.ceil((captionLength * (fontSize + letterSpacing)) / width) *
+      lineHeight
+    return height
   }
 
   const handleOpenEnd = () => {
@@ -194,6 +108,8 @@ const Zoom = ({ children, caption, options }) => {
     if (!containerRef.current || !overlayRef.current || !zoomedRef.current)
       return
 
+    const { overlay } = themeContext
+
     scrollTop =
       window.pageYOffset ||
       document.documentElement.scrollTop ||
@@ -201,15 +117,21 @@ const Zoom = ({ children, caption, options }) => {
       0
 
     setAnimating(true)
-    containerRef.current.style.zIndex = themeContext.overlayZindex
+    containerRef.current.style.zIndex = overlay.zIndex
     overlayRef.current.style.display = 'block'
     window.requestAnimationFrame(() => {
-      overlayRef.current.style.opacity = themeContext.opacity
+      overlayRef.current.style.opacity = overlay.opacity
     })
 
     zoomedRef.current.addEventListener('transitionend', handleOpenEnd)
     setZoom(true)
-    animate()
+    animate({
+      originalRef,
+      zoomedRef,
+      captionRef,
+      themeContext,
+      captionHeight: getCaptionHeight(props.caption.length),
+    })
   }
 
   const handleCloseEnd = () => {
@@ -238,8 +160,7 @@ const Zoom = ({ children, caption, options }) => {
        top: 0;
        left: 0;
        opacity: 0;
-       visibility: hidden;
-       transition: opacity ${captionDelay}ms;`
+       visibility: hidden;`
     )
     handleCloseEnd()
   }
@@ -275,15 +196,15 @@ const Zoom = ({ children, caption, options }) => {
   }
 
   useEffect(() => {
-    if (!originalChildrenRef.current || !zoomedRef.current) return
-    originalChildrenRef.current.style.width = '100%'
+    if (!originalRef.current || !zoomedRef.current) return
+    originalRef.current.style.width = '100%'
     zoomedRef.current.style.width = '100%'
   })
   useEventListener(document, 'keyup', handleKeyUp)
   useEventListener(zoomOptions.scrollableEl, 'scroll', handleScroll)
   useEventListener(window, 'resize', close)
 
-  if (Children.count(children) !== 1) {
+  if (Children.count(props.children) !== 1) {
     console.error(`
       Error: Adjacent JSX elements must be wrapped in an enclosing tag. 
       Did you want a <div>...</div>?
@@ -291,53 +212,42 @@ const Zoom = ({ children, caption, options }) => {
     return null
   }
 
-  const {
-    background,
-    captionFontSize,
-    captionLineHeight,
-    captionLetterSpacing,
-    captionColor,
-  } = themeContext
-  const { transitionDuration, captionDelay } = zoomOptions
+  const { overlay, caption } = themeContext
 
   return (
     <Container ref={containerRef}>
       <Original isZoomed={isZoomed} onClick={toggle}>
-        {cloneElement(children, { ref: originalChildrenRef })}
+        {cloneElement(props.children, { ref: originalRef })}
       </Original>
       <Overlay
         ref={overlayRef}
         show={isZoomed}
-        background={background}
+        background={overlay.background}
         onClick={close}
-        transitionDuration={transitionDuration}
+        transitionDuration={zoomOptions.transitionDuration}
       />
       <Zoomable isZoomed={isZoomed} onClick={toggle}>
-        {cloneElement(children, { ref: zoomedRef })}
+        {cloneElement(props.children, { ref: zoomedRef })}
       </Zoomable>
       <Caption
         ref={captionRef}
-        fontSize={captionFontSize}
-        lineHeight={captionLineHeight}
-        letterSpacing={captionLetterSpacing}
-        color={captionColor}
-        duration={captionDelay}
+        fontSize={caption.fontSize}
+        lineHeight={caption.lineHeight}
+        letterSpacing={caption.letterSpacing}
+        color={caption.color}
       >
-        {caption}
+        {props.caption}
       </Caption>
     </Container>
   )
 }
 
 Zoom.propTypes = {
-  // TODO: define !
-  options: PropTypes.object,
   children: PropTypes.node.isRequired,
   caption: PropTypes.string,
 }
 
 Zoom.defaultProps = {
-  options: {},
   caption: '',
 }
 
