@@ -1,6 +1,7 @@
 import Image from './zoomable-image'
 import React from 'react'
 import styled from 'styled-components'
+import twreporterTheme from '../themes/twreporter-theme'
 
 const Article = styled.article`
   width: 40%;
@@ -15,19 +16,8 @@ function TestComponent() {
         src="https://raw.githubusercontent.com/francoischalifour/medium-zoom/master/examples/react/public/images/image-1.jpg"
         alt="Zoom 1"
         caption="數年前在美國使用VRS手語視訊翻譯平台（Video Relay Service）後，難忘如此振奮的感覺，歐陽磊回台便創立洛以，全體員工都是聽障者。（攝影／張家瑋）"
+        theme={twreporterTheme}
       />
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Tempora
-        praesentium cupiditate fugit voluptas, rem eligendi, voluptatem
-        molestias. Doloremque sit voluptatum odio maiores provident consequuntur
-        accusantium saepe.
-      </p>
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Tempora
-        praesentium cupiditate fugit voluptas, rem eligendi, voluptatem
-        molestias. Doloremque sit voluptatum odio maiores provident consequuntur
-        accusantium saepe.
-      </p>
       <p>
         Lorem ipsum dolor sit amet, consectetur adipisicing elit. Tempora
         praesentium cupiditate fugit voluptas, rem eligendi, voluptatem
@@ -37,8 +27,27 @@ function TestComponent() {
       <Image
         src="https://raw.githubusercontent.com/francoischalifour/medium-zoom/master/examples/react/public/images/image-2.jpg"
         alt="Zoom 1"
-        caption="數年前在美國使用VRS手語視訊翻譯平台（Video Relay Service）後，難忘如此振奮的感覺，歐陽磊回台便創立洛以，全體員工都是聽障者。數年前在美國使用VRS手語視訊翻譯平台（Video Relay Service）後，難忘如此振奮的感覺，歐陽磊回台便創立洛以，全體員工都是聽障者。數年前在美國使用VRS手語視訊翻譯平台（Video Relay Service）後，難忘如此振奮的感覺，歐陽磊回台便創立洛以，全體員工都是聽障者。（攝影／張家瑋）"
+        caption="數年前在美國使用VRS手語視訊翻譯平台（Video Relay Service）後，難忘如此振奮的感覺，歐陽磊回台便創立洛以，全體員工都是聽障者。（攝影／張家瑋）"
+        theme={twreporterTheme}
       />
+      <Image
+        src="https://raw.githubusercontent.com/francoischalifour/medium-zoom/master/examples/react/public/images/image-3.jpg"
+        alt="Zoom 1"
+        caption="數年前在美國使用VRS手語視訊翻譯平台（Video Relay Service）後，難忘如此振奮的感覺，歐陽磊回台便創立洛以，全體員工都是聽障者。（攝影／張家瑋）數年前在美國使用VRS手語視訊翻譯平台（Video Relay Service）後，難忘如此振奮的感覺，歐陽磊回台便創立洛以，全體員工都是聽障者。（攝影／張家瑋）"
+        theme={twreporterTheme}
+      />
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Tempora
+        praesentium cupiditate fugit voluptas, rem eligendi, voluptatem
+        molestias. Doloremque sit voluptatum odio maiores provident consequuntur
+        accusantium saepe.
+      </p>
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Tempora
+        praesentium cupiditate fugit voluptas, rem eligendi, voluptatem
+        molestias. Doloremque sit voluptatum odio maiores provident consequuntur
+        accusantium saepe.
+      </p>
       <p>
         Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ea dolores
         quaerat, quis modi nostrum sequi adipisci ratione esse blanditiis error
@@ -48,6 +57,7 @@ function TestComponent() {
         src="https://raw.githubusercontent.com/francoischalifour/medium-zoom/master/examples/react/public/images/image-3.jpg"
         alt="Zoom 1"
         caption="數年前在美國使用VRS手語視訊翻譯平台（Video Relay Service）後，難忘如此振奮的感覺，歐陽磊回台便創立洛以，全體員工都是聽障者。（攝影／張家瑋）"
+        theme={twreporterTheme}
       />
     </Article>
   )
