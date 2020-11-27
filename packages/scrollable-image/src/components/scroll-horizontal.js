@@ -1,3 +1,4 @@
+import Dimmer from './dimmer-with-message'
 import Image from './image'
 import PropTypes from 'prop-types'
 import React from 'react'
@@ -13,6 +14,7 @@ const _ = {
 }
 
 const Container = styled.div`
+  position: relative;
   overflow: hidden;
   min-height: 100vh;
 `
@@ -30,7 +32,7 @@ const ScrollableComponent = styled.div`
 `
 
 const Content = styled.div`
-  width: 100%;
+  display: inline-block;
   white-space: nowrap;
   overflow: hidden;
 `
@@ -54,33 +56,37 @@ class ScrollHorizontal extends React.PureComponent {
     super(props)
     this.distanceFromTop = 0
     this.contentWidth = 0
-    this.lastWindowHeight = 0
     this.isDistanceFromTopSet = false
+    this.scrollLock = false
+    this.imgLoadedCounter = 0
     this.wrapper = React.createRef()
     this.content = React.createRef()
     this.handleScroll = this._handleScroll.bind(this)
+    this.onScroll = this._onScroll.bind(this)
     this.handleResize = _.debounce(this._handleResize.bind(this), 100)
     this.handleImgLoad = this._handleImgLoad.bind(this)
     this.handleImgError = this._handleImgError.bind(this)
+    this.state = {
+      readyToScroll: false,
+    }
   }
 
   componentDidMount() {
-    window.addEventListener('scroll', this.handleScroll)
+    window.addEventListener('scroll', this.onScroll)
     window.addEventListener('resize', this.handleResize)
-    this.lastWindowHeight = window.innerHeight
   }
 
   componentWillUnmount() {
-    window.removeEventListener('scroll', this.handleScroll)
+    window.removeEventListener('scroll', this.onScroll)
     window.removeEventListener('resize', this.handleResize)
     this.distanceFromTop = undefined
     this.contentWidth = undefined
     this.isDistanceFromTopSet = undefined
-    this.lastWindowHeight = undefined
+    this.scrollLock = undefined
+    this.imgLoadedCounter = undefined
   }
 
   _handleScroll(event) {
-    const { isActive } = this.props
     // Reset the distance of content from top since the wrapper's height has been
     // set in image onLoad handler
     if (!this.isDistanceFromTopSet) {
@@ -89,45 +95,49 @@ class ScrollHorizontal extends React.PureComponent {
       this.isDistanceFromTopSet = true
     }
 
-    if (isActive) {
-      const percentage = Math.min(
+    const percentage = Math.max(
+      0,
+      Math.min(
         (window.pageYOffset - this.distanceFromTop) /
-          (this.contentWidth - window.innerHeight),
+          (this.content.current.clientWidth - window.innerHeight),
         1
       )
-      // shift by scrolling progress in percentage
-      this.content.current.style.transform = `translate(-${percentage *
-        (this.contentWidth - window.innerWidth)}px, 0)`
+    )
+    // shift by scrolling progress in percentage
+    this.content.current.style.transform = `translate(-${percentage *
+      (this.content.current.clientWidth - window.innerWidth)}px, 0)`
+
+    this.scrollLock = false
+  }
+
+  _onScroll() {
+    if (window && !this.scrollLock) {
+      window.requestAnimationFrame(this.handleScroll)
+      this.scrollLock = true
     }
   }
 
   _handleResize() {
-    // Since the resizing behavior of the URL bar on iOS makes `window.innerHeight` change and
-    // the wrapper’s height changes as well when the resize event is triggered.
-    // The frequently changed height causes page jarring everytime when user changes scroll direction.
-    // Therefore, only call `setLayout` function when the changed height is larger than url bar’s height.
-    const ignoredRange = 90
-    if (Math.abs(window.innerHeight - this.lastWindowHeight) > ignoredRange) {
-      if (this.isDistanceFromTopSet) {
-        this.isDistanceFromTopSet = false
-      }
-      this.contentWidth =
-        this.contentWidth * (window.innerHeight / this.lastWindowHeight)
-      this.wrapper.current.style.width = `${this.contentWidth}px`
-      this.wrapper.current.style.height = `${this.contentWidth}px`
-      this.content.current.style.width = `${this.contentWidth}px`
-      this.lastWindowHeight = window.innerHeight
+    const contentWidth = this.content.current.clientWidth
+    if (this.isDistanceFromTopSet) {
+      this.isDistanceFromTopSet = false
     }
+    this.wrapper.current.style.width = `${contentWidth}px`
+    this.wrapper.current.style.height = `${contentWidth}px`
   }
 
   _handleImgLoad({ target: img }) {
-    this.contentWidth =
-      this.contentWidth +
-      (img.clientHeight || img.getComputedStyle().height || 0) *
-        (img.naturalWidth / img.naturalHeight)
-    this.wrapper.current.style.height = `${this.contentWidth}px`
-    this.content.current.style.width = `${this.contentWidth}px`
+    const { imgSrc } = this.props
+
     this.isDistanceFromTopSet = false
+
+    if (++this.imgLoadedCounter === imgSrc.length) {
+      this.setState({
+        readyToScroll: true,
+      })
+
+      this.wrapper.current.style.height = `${this.content.current.clientWidth}px`
+    }
   }
 
   _handleImgError({ target: img }) {
@@ -138,7 +148,7 @@ class ScrollHorizontal extends React.PureComponent {
   renderContent() {
     const { imgSrc } = this.props
     return (
-      <Content>
+      <Content ref={this.content}>
         {imgSrc.map((src, index) => {
           return (
             <Image
@@ -155,17 +165,20 @@ class ScrollHorizontal extends React.PureComponent {
 
   render() {
     const { isActive, verticalDirection } = this.props
+    const { readyToScroll } = this.state
     return (
       <Container>
         <Wrapper ref={this.wrapper}>
           <ScrollableComponent
-            ref={this.content}
             isActive={isActive}
             alignBottom={verticalDirection === 'down'}
           >
             {this.renderContent()}
           </ScrollableComponent>
         </Wrapper>
+        {!readyToScroll ? (
+          <Dimmer show={!readyToScroll} message="載入中..." shining />
+        ) : null}
       </Container>
     )
   }
