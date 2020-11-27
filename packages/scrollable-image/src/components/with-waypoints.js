@@ -17,16 +17,18 @@ const withWaypoints = WrappedComponent => {
         isActive: false,
         isScrollingFromTopToBottom: false,
       }
-      this.isEnabled = false
+      this.waypointsPosition = {}
       this.setScrollState = this._setScrollState.bind(this)
-      this.handleTopBoundaryEnter = this._handleTopBoundaryEnter.bind(this)
-      this.handleTopBoundaryLeave = this._handleTopBoundaryLeave.bind(this)
-      this.handleBottomBoundaryEnter = this._handleBottomBoundaryEnter.bind(
+      this.handleTopBoundaryPositionChange = this._handleTopBoundaryPositionChange.bind(
         this
       )
-      this.handleBottomBoundaryLeave = this._handleBottomBoundaryLeave.bind(
+      this.handleBottomBoundaryPositionChange = this._handleBottomBoundaryPositionChange.bind(
         this
       )
+    }
+
+    componentWillUnmount() {
+      this.waypointsPosition = undefined
     }
 
     _setScrollState({ isActive, verticalDirection }) {
@@ -36,55 +38,90 @@ const withWaypoints = WrappedComponent => {
       })
     }
 
-    _handleTopBoundaryEnter({ previousPosition, currentPosition }) {
-      if (!this.isEnabled) return
-      if (
-        previousPosition === Waypoint.above &&
-        currentPosition === Waypoint.inside
-      ) {
-        this.setScrollState({
-          isActive: false,
-          verticalDirection: 'up',
-        })
+    _setWaypointPosition(pos) {
+      // TODO check keys
+      this.waypointsPosition = Object.assign(this.waypointsPosition, pos)
+    }
+
+    _handleTopBoundaryPositionChange(position) {
+      const { previousPosition, currentPosition } = position
+      const { bottomBoundaryPosition } = this.waypointsPosition
+
+      this._setWaypointPosition({ topBoundaryPosition: currentPosition })
+
+      // top boundary enter to viewport
+      if (currentPosition === Waypoint.inside) {
+        if (previousPosition === Waypoint.above) {
+          this.setScrollState({
+            isActive: false,
+            verticalDirection: 'up',
+          })
+        } else if (previousPosition === Waypoint.below) {
+          this.setScrollState({
+            isActive: false,
+            verticalDirection: 'up',
+          })
+        }
+        return
+      }
+
+      // top boundary leave from viewport
+      if (previousPosition === Waypoint.inside) {
+        if (currentPosition === Waypoint.above) {
+          if (bottomBoundaryPosition === Waypoint.inside) return
+
+          this.setScrollState({
+            isActive: true,
+          })
+        } else if (currentPosition === Waypoint.below) {
+          this.setScrollState({
+            isActive: false,
+            verticalDirection: 'up',
+          })
+        }
       }
     }
 
-    _handleTopBoundaryLeave({ previousPosition, currentPosition }) {
-      if (!this.isEnabled) return
-      if (
-        previousPosition === Waypoint.inside &&
-        currentPosition === Waypoint.above
-      ) {
-        this.setScrollState({
-          isActive: true,
-          verticalDirection: 'down',
-        })
-      }
-    }
+    _handleBottomBoundaryPositionChange(position) {
+      const { previousPosition, currentPosition } = position
+      const { topBoundaryPosition } = this.waypointsPosition
 
-    _handleBottomBoundaryEnter({ previousPosition, currentPosition }) {
-      if (!this.isEnabled) return
-      if (
-        previousPosition === Waypoint.below &&
-        currentPosition === Waypoint.inside
-      ) {
-        this.setScrollState({
-          isActive: false,
-          verticalDirection: 'down',
-        })
-      }
-    }
+      this._setWaypointPosition({ bottomBoundaryPosition: currentPosition })
 
-    _handleBottomBoundaryLeave({ previousPosition, currentPosition }) {
-      if (!this.isEnabled) return
-      if (
-        previousPosition === Waypoint.inside &&
-        currentPosition === Waypoint.below
-      ) {
-        this.setScrollState({
-          isActive: true,
-          verticalDirection: 'up',
-        })
+      // bottom boundary enter to viewport
+      if (currentPosition === Waypoint.inside) {
+        if (previousPosition === Waypoint.below) {
+          // bottom boundary enter from below
+          this.setScrollState({
+            isActive: false,
+            verticalDirection: 'down',
+          })
+        } else if (previousPosition === Waypoint.above) {
+          // bottom boundary enter from above
+          this.setScrollState({
+            isActive: false,
+            verticalDirection: 'down',
+          })
+        }
+        return
+      }
+
+      // bottom boundary leave from viewport
+      if (previousPosition === Waypoint.inside) {
+        if (currentPosition === Waypoint.below) {
+          // bottom boundary leave to below
+          if (topBoundaryPosition === Waypoint.inside) return
+
+          this.setScrollState({
+            isActive: true,
+          })
+        } else if (currentPosition === Waypoint.above) {
+          // bottom boundary leave to above
+          this.setScrollState({
+            isActive: false,
+            verticalDirection: 'down',
+          })
+        }
       }
     }
 
@@ -93,8 +130,7 @@ const withWaypoints = WrappedComponent => {
       return (
         <>
           <Waypoint
-            onEnter={this.handleTopBoundaryEnter}
-            onLeave={this.handleTopBoundaryLeave}
+            onPositionChange={this.handleTopBoundaryPositionChange}
             fireOnRapidScroll
             debug={this.props.debug}
           />
@@ -102,11 +138,9 @@ const withWaypoints = WrappedComponent => {
             {...this.props}
             isActive={isActive}
             verticalDirection={verticalDirection}
-            enableWaypoint={() => (this.isEnabled = true)}
           />
           <Waypoint
-            onEnter={this.handleBottomBoundaryEnter}
-            onLeave={this.handleBottomBoundaryLeave}
+            onPositionChange={this.handleBottomBoundaryPositionChange}
             fireOnRapidScroll
             debug={this.props.debug}
           />
